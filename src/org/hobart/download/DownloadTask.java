@@ -74,6 +74,10 @@ public class DownloadTask implements Runnable {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(10 * 1000);
+            connection.setUseCaches(false);
+            //Content-Type →application/zip
+            connection.setRequestProperty("Content-Type", "application/zip");
+            connection.setRequestProperty("Accept-Encoding", "");
             connection.setRequestProperty("Range", "bytes=" + startIndex + "-" + endIndex);
             final int code = connection.getResponseCode();
             mLogger.info("线程" + threadId + "： ResponseCode():" + code);
@@ -82,7 +86,10 @@ public class DownloadTask implements Runnable {
                 RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
                 accessFile.seek(startIndex);
                 InputStream is = connection.getInputStream();
+                System.out.println("线程" + threadId + "： content length：" + connection.getContentLength());
+                long skipStartTime = System.currentTimeMillis();
                 is.skip(startIndex);
+                System.out.println("线程" + threadId + "： skip 花费时间：" + (System.currentTimeMillis() - skipStartTime) / 1000 + "秒");
                 BufferedInputStream buffInput = new BufferedInputStream(is, BUFF_LEN);
                 byte[] buffer = new byte[BUFF_LEN];
                 int len;
@@ -133,11 +140,7 @@ public class DownloadTask implements Runnable {
         return this.downloadSize;
     }
 
-    public DownLoadState getState() {
+    public DownLoadState getDownLoadState() {
         return state;
-    }
-
-    public void setState(DownLoadState state) {
-        this.state = state;
     }
 }

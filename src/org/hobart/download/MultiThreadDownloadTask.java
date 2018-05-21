@@ -144,7 +144,7 @@ public class MultiThreadDownloadTask {
                 for (int i = 0; i < threadCount; i++) {
                     DownloadTask task = allTask.get(i);
                     downloadSize += task.getDownloadSize();
-                    if (task.getState() != DownLoadState.FINISHED) {
+                    if (task.getDownLoadState() != DownLoadState.FINISHED) {
                         isAllFinished = false;
                     }
                 }
