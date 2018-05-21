@@ -5,7 +5,10 @@ import org.hobart.download.callback.DownloadListener;
 import org.hobart.download.util.DownLoadState;
 import org.hobart.download.util.LogUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -87,7 +90,7 @@ public class DownloadTask implements Runnable {
                 InputStream is = connection.getInputStream();
                 //System.out.println("线程" + threadId + "： content length：" + connection.getContentLength());
                 //long skipStartTime = System.currentTimeMillis();
-                is.skip(startIndex);
+                //is.skip(startIndex);
                 //System.out.println("线程" + threadId + "： skip 花费时间：" + (System.currentTimeMillis() - skipStartTime) / 1000 + "秒");
                 BufferedInputStream buffInput = new BufferedInputStream(is, BUFF_LEN);
                 byte[] buffer = new byte[BUFF_LEN];
