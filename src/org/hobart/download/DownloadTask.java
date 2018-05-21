@@ -81,7 +81,7 @@ public class DownloadTask implements Runnable {
             mLogger.info("线程" + threadId + "： ResponseCode():" + code);
             if (code == 200 || code == 206) {
                 mLogger.info("线程" + threadId + "： 开始下载！");
-                RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
+                RandomAccessFile accessFile = new RandomAccessFile(file, "rw");
                 accessFile.seek(startIndex);
                 InputStream is = connection.getInputStream();
                 is.skip(startIndex);

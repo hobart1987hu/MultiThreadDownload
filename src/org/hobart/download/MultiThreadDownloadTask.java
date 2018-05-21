@@ -61,7 +61,7 @@ public class MultiThreadDownloadTask {
      */
     private int taskId;
 
-    private long startDonloadTime;
+    private long startDownLoadTime;
 
 
     public MultiThreadDownloadTask(int taskId, String url, String fileSavePath, int threadCount, DownloadListener<MultiThreadDownloadTask> listener) {
@@ -80,7 +80,7 @@ public class MultiThreadDownloadTask {
     public void startDownload() {
         try {
 
-            startDonloadTime = System.currentTimeMillis();
+            startDownLoadTime = System.currentTimeMillis();
 
             URL url = new URL(this.url);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -131,8 +131,8 @@ public class MultiThreadDownloadTask {
                             }
                         }
                     });
-                    MultiThreadPool.execute(downloadTask);
                     allTask.add(downloadTask);
+                    MultiThreadPool.execute(downloadTask);
                     //开启定时器，不断的获取下载进度
                     scheduleProgressTask();
                 }
@@ -177,7 +177,7 @@ public class MultiThreadDownloadTask {
     }
 
     private void printDownloadCostTime() {
-        long duration = System.currentTimeMillis() - startDonloadTime;
+        long duration = System.currentTimeMillis() - startDownLoadTime;
         mLogger.info("taskId:" + taskId + " 下载耗时：" + duration / 1000 + "秒");
     }
 

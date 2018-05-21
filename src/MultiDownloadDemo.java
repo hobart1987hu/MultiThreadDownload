@@ -19,22 +19,22 @@ public class MultiDownloadDemo {
 
                 @Override
                 public void onStart(MultiThreadDownloadTask multiThreadDownload) {
-                    //mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 开始下载!");
+                    mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 开始下载!");
                 }
 
                 @Override
                 public void onSuccess(MultiThreadDownloadTask multiThreadDownload) {
-                    // mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载完成!");
+                     mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载完成!");
                 }
 
                 @Override
                 public void onProgress(MultiThreadDownloadTask multiThreadDownload) {
-                    // mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载进度：" + multiThreadDownload.getPercent());
+                     mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载进度：" + multiThreadDownload.getPercent());
                 }
 
                 @Override
                 public void onFailure(MultiThreadDownloadTask multiThreadDownload, String message) {
-                    //  mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载失败：" + message);
+                      mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载失败：" + message);
                 }
             });
             multiThreadDownloadTask.startDownload();
