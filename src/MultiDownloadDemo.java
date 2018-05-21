@@ -9,11 +9,11 @@ public class MultiDownloadDemo {
     private static final Logger mLogger = LogUtils.getLogger("MultiDownloadDemo");
 
     public static void main(String[] args) {
-        String url1 = "https://github.com/hobart1987hu/SimpleHybirdNative/archive/master.zip";
+        String url1 = "http://e.hiphotos.baidu.com/image/pic/item/8d5494eef01f3a2919fab6729525bc315c607c5f.jpg";
         String url2 = "https://github.com/facebook/react-native/archive/master.zip";
         String savePath = "/Users/huzeyin/Documents/testMultiDownload";
         try {
-            MultiThreadDownloadTask multiThreadDownloadTask = new MultiThreadDownloadTask(1, url2, savePath, 4, new DownloadListener.SimpleDownloadListener<MultiThreadDownloadTask>() {
+            MultiThreadDownloadTask multiThreadDownloadTask = new MultiThreadDownloadTask(1, url1, savePath, 4, new DownloadListener.SimpleDownloadListener<MultiThreadDownloadTask>() {
 
                 @Override
                 public void onStart(MultiThreadDownloadTask multiThreadDownload) {
