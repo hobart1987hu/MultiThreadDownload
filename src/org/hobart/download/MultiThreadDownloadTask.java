@@ -89,6 +89,17 @@ public class MultiThreadDownloadTask {
             connection.setReadTimeout(5 * 1000);
             if (connection.getResponseCode() == 200) {
                 final int length = connection.getContentLength();
+                String supportRanges = connection.getHeaderField("Accept-Ranges");
+                mLogger.info("taskId：" + taskId + " supportRanges:" + supportRanges);
+                boolean enableRanges = false;
+                if (null != supportRanges && supportRanges.equals("bytes")) {
+                    enableRanges = true;
+                } else {
+                    enableRanges = false;
+                }
+                if (!enableRanges) {
+                    threadCount = 1;
+                }
                 connection.disconnect();
                 totalSize = length;
                 mLogger.info("taskId：" + taskId + " 文件总大小为：" + totalSize);

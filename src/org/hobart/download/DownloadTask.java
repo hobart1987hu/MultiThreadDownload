@@ -75,7 +75,6 @@ public class DownloadTask implements Runnable {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(10 * 1000);
             connection.setUseCaches(false);
-            //Content-Type →application/zip
             connection.setRequestProperty("Content-Type", "application/zip");
             connection.setRequestProperty("Accept-Encoding", "");
             connection.setRequestProperty("Range", "bytes=" + startIndex + "-" + endIndex);
@@ -86,10 +85,10 @@ public class DownloadTask implements Runnable {
                 RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
                 accessFile.seek(startIndex);
                 InputStream is = connection.getInputStream();
-                System.out.println("线程" + threadId + "： content length：" + connection.getContentLength());
-                long skipStartTime = System.currentTimeMillis();
+                //System.out.println("线程" + threadId + "： content length：" + connection.getContentLength());
+                //long skipStartTime = System.currentTimeMillis();
                 is.skip(startIndex);
-                System.out.println("线程" + threadId + "： skip 花费时间：" + (System.currentTimeMillis() - skipStartTime) / 1000 + "秒");
+                //System.out.println("线程" + threadId + "： skip 花费时间：" + (System.currentTimeMillis() - skipStartTime) / 1000 + "秒");
                 BufferedInputStream buffInput = new BufferedInputStream(is, BUFF_LEN);
                 byte[] buffer = new byte[BUFF_LEN];
                 int len;

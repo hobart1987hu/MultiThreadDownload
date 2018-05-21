@@ -9,8 +9,6 @@ public class MultiDownloadDemo {
     private static final Logger mLogger = LogUtils.getLogger("MultiDownloadDemo");
 
     public static void main(String[] args) {
-        //https://github.com/hobart1987hu/SimpleHybirdNative/archive/master.zip
-        //https://github.com/facebook/react-native/archive/master.zip
         String url1 = "https://github.com/hobart1987hu/SimpleHybirdNative/archive/master.zip";
         String url2 = "https://github.com/facebook/react-native/archive/master.zip";
         String savePath = "/Users/huzeyin/Documents/testMultiDownload";
