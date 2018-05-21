@@ -61,6 +61,9 @@ public class MultiThreadDownloadTask {
      */
     private int taskId;
 
+    private long startDonloadTime;
+
+
     public MultiThreadDownloadTask(int taskId, String url, String fileSavePath, int threadCount, DownloadListener<MultiThreadDownloadTask> listener) {
         this.taskId = taskId;
         if (threadCount < 1)
@@ -76,6 +79,9 @@ public class MultiThreadDownloadTask {
 
     public void startDownload() {
         try {
+
+            startDonloadTime = System.currentTimeMillis();
+
             URL url = new URL(this.url);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -90,6 +96,10 @@ public class MultiThreadDownloadTask {
                 accessFile.setLength(length);
                 accessFile.close();
                 int blockSize = length / threadCount;
+
+                if (null != outListener)
+                    outListener.onStart(this);
+
                 for (int i = 0; i < threadCount; i++) {
                     int startIndex = i * blockSize;
                     int endIndex = (i + 1) * blockSize - 1;
@@ -97,14 +107,18 @@ public class MultiThreadDownloadTask {
                         endIndex = length;
                     }
                     mLogger.info("线程：" + i + " startIndex:" + startIndex + "  endIndex:" + endIndex);
-                    DownloadTask downloadTask = new DownloadTask(i, startIndex, endIndex, this.url, file, new DownloadListener<DownloadTask>() {
+                    DownloadTask downloadTask = new DownloadTask(i, startIndex, endIndex, this.url, file, new DownloadListener.SimpleDownloadListener<DownloadTask>() {
+
                         @Override
                         public void onSuccess(DownloadTask task) {
-                        }
-
-                        @Override
-                        public void onProgress(DownloadTask task) {
-
+                            synchronized (allTask) {
+                                for (DownloadTask t : allTask) {
+                                    if (t.getState() != DownLoadState.FINISHED) {
+                                        return;
+                                    }
+                                }
+                                printDownloadCostTime();
+                            }
                         }
 
                         @Override
@@ -124,10 +138,12 @@ public class MultiThreadDownloadTask {
                 }
                 connection.disconnect();
             } else {
+                printDownloadCostTime();
                 mLogger.info("下载 url:" + this.url + "\n未响应");
                 if (null != outListener) outListener.onFailure(this, "未响应");
             }
         } catch (Exception e) {
+            printDownloadCostTime();
             mLogger.info("下载 url:" + this.url + "异常 \n错误信息：" + e.getMessage());
             if (null != outListener) outListener.onFailure(this, e.getMessage());
         }
@@ -157,7 +173,12 @@ public class MultiThreadDownloadTask {
                     cancel();
                 }
             }
-        }, 1 * 1000, 2 * 1000);
+        }, 1 * 1000, 1 * 1000);
+    }
+
+    private void printDownloadCostTime() {
+        long duration = System.currentTimeMillis() - startDonloadTime;
+        mLogger.info("taskId:" + taskId + " 下载耗时：" + duration / 1000 + "秒");
     }
 
     public void clear() {

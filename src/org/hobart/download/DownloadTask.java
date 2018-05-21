@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class DownloadTask implements Runnable {
 
     private static final Logger mLogger = LogUtils.getLogger(DownloadTask.class.getName());
-    private final int BUFF_LEN = 1024;
+    private final int BUFF_LEN = 1024 * 10;
 
     private DownLoadState state;
 
@@ -67,12 +67,12 @@ public class DownloadTask implements Runnable {
         this.state = DownLoadState.WAIT;
     }
 
-    /**
-     *
-     */
     @Override
     public void run() {
         try {
+
+            if (null != innerDownloadListener) innerDownloadListener.onStart(this);
+
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(10 * 1000);
@@ -92,7 +92,7 @@ public class DownloadTask implements Runnable {
                 while ((len = is.read(buffer)) != -1) {
                     if (totalSize - downloadSize < len) {
                         dataLen = totalSize - downloadSize;
-                         mLogger.info("线程" + threadId + " 临界数据： " + dataLen);
+                        mLogger.info("线程" + threadId + " 临界数据： " + dataLen);
                         accessFile.write(buffer, 0, dataLen);
                     } else {
                         dataLen = len;
@@ -101,7 +101,7 @@ public class DownloadTask implements Runnable {
                     current += dataLen;
                     downloadSize = current;
                     this.state = DownLoadState.DOWNLOADING;
-                    //mLogger.info("线程" + threadId + " 下载进度： " + downloadSize + " totalSize:" + totalSize);
+                    mLogger.info("线程" + threadId + " 下载进度： " + downloadSize + " totalSize:" + totalSize);
                     if (null != innerDownloadListener)
                         innerDownloadListener.onProgress(this);
                     if (downloadSize >= totalSize) {
