@@ -5,9 +5,7 @@ import org.hobart.download.callback.DownloadListener;
 import org.hobart.download.util.DownLoadState;
 import org.hobart.download.util.LogUtils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -18,7 +16,7 @@ import java.util.logging.Logger;
 public class DownloadTask implements Runnable {
 
     private static final Logger mLogger = LogUtils.getLogger(DownloadTask.class.getName());
-    private final int BUFF_LEN = 1024 * 10;
+    private final int BUFF_LEN = 1024 * 1024;
 
     private DownLoadState state;
 
@@ -81,23 +79,22 @@ public class DownloadTask implements Runnable {
             mLogger.info("线程" + threadId + "： ResponseCode():" + code);
             if (code == 200 || code == 206) {
                 mLogger.info("线程" + threadId + "： 开始下载！");
-                RandomAccessFile accessFile = new RandomAccessFile(file, "rw");
+                RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
                 accessFile.seek(startIndex);
                 InputStream is = connection.getInputStream();
                 is.skip(startIndex);
+                BufferedInputStream buffInput = new BufferedInputStream(is, BUFF_LEN);
                 byte[] buffer = new byte[BUFF_LEN];
                 int len;
                 int current = 0;
                 int dataLen = 0;
-                while ((len = is.read(buffer)) != -1) {
+                while ((len = buffInput.read(buffer)) != -1) {
                     if (totalSize - downloadSize < len) {
                         dataLen = totalSize - downloadSize;
-                        mLogger.info("线程" + threadId + " 临界数据： " + dataLen);
-                        accessFile.write(buffer, 0, dataLen);
                     } else {
                         dataLen = len;
-                        accessFile.write(buffer, 0, dataLen);
                     }
+                    accessFile.write(buffer, 0, dataLen);
                     current += dataLen;
                     downloadSize = current;
                     this.state = DownLoadState.DOWNLOADING;
@@ -108,13 +105,14 @@ public class DownloadTask implements Runnable {
                         break;
                     }
                 }
-                accessFile.close();
-                is.close();
-                connection.disconnect();
                 this.state = DownLoadState.FINISHED;
                 if (null != innerDownloadListener)
                     innerDownloadListener.onSuccess(this);
                 mLogger.info("线程" + threadId + "： 下载完成！");
+                accessFile.close();
+                is.close();
+                buffInput.close();
+                connection.disconnect();
             } else {
                 this.state = DownLoadState.FAILURE;
                 if (null != innerDownloadListener) {

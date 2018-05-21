@@ -89,10 +89,11 @@ public class MultiThreadDownloadTask {
             connection.setReadTimeout(5 * 1000);
             if (connection.getResponseCode() == 200) {
                 final int length = connection.getContentLength();
+                connection.disconnect();
                 totalSize = length;
                 mLogger.info("taskId：" + taskId + " 文件总大小为：" + totalSize);
                 File file = new File(fileSavePath, FileUtils.getFileName(this.url));
-                RandomAccessFile accessFile = new RandomAccessFile(file, "rw");
+                RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
                 accessFile.setLength(length);
                 accessFile.close();
                 int blockSize = length / threadCount;
@@ -108,19 +109,6 @@ public class MultiThreadDownloadTask {
                     }
                     mLogger.info("线程：" + i + " startIndex:" + startIndex + "  endIndex:" + endIndex);
                     DownloadTask downloadTask = new DownloadTask(i, startIndex, endIndex, this.url, file, new DownloadListener.SimpleDownloadListener<DownloadTask>() {
-
-                        @Override
-                        public void onSuccess(DownloadTask task) {
-                            synchronized (allTask) {
-                                for (DownloadTask t : allTask) {
-                                    if (t.getState() != DownLoadState.FINISHED) {
-                                        return;
-                                    }
-                                }
-                                printDownloadCostTime();
-                            }
-                        }
-
                         @Override
                         public void onFailure(DownloadTask task, String message) {
                             failedTasks.add(task);
@@ -133,10 +121,8 @@ public class MultiThreadDownloadTask {
                     });
                     allTask.add(downloadTask);
                     MultiThreadPool.execute(downloadTask);
-                    //开启定时器，不断的获取下载进度
-                    scheduleProgressTask();
                 }
-                connection.disconnect();
+                scheduleProgressTask();
             } else {
                 printDownloadCostTime();
                 mLogger.info("下载 url:" + this.url + "\n未响应");
@@ -165,6 +151,7 @@ public class MultiThreadDownloadTask {
                 percent = (float) downloadSize / (float) totalSize;
                 if (isAllFinished) {
                     percent = 1.0;
+                    printDownloadCostTime();
                 }
                 if (null != outListener) {
                     outListener.onProgress(MultiThreadDownloadTask.this);
