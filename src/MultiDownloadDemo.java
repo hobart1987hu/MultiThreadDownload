@@ -13,7 +13,7 @@ public class MultiDownloadDemo {
         String url2 = "https://github.com/facebook/react-native/archive/master.zip";
         String savePath = "/Users/huzeyin/Documents/testMultiDownload";
         try {
-            MultiThreadDownloadTask multiThreadDownloadTask = new MultiThreadDownloadTask(1, url1, savePath, 4, new DownloadListener.SimpleDownloadListener<MultiThreadDownloadTask>() {
+            MultiThreadDownloadTask multiThreadDownloadTask = new MultiThreadDownloadTask(1, url1, savePath, 7, new DownloadListener.SimpleDownloadListener<MultiThreadDownloadTask>() {
 
                 @Override
                 public void onStart(MultiThreadDownloadTask multiThreadDownload) {
@@ -22,17 +22,17 @@ public class MultiDownloadDemo {
 
                 @Override
                 public void onSuccess(MultiThreadDownloadTask multiThreadDownload) {
-                     mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载完成!");
+                    mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载完成!");
                 }
 
                 @Override
                 public void onProgress(MultiThreadDownloadTask multiThreadDownload) {
-                     mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载进度：" + multiThreadDownload.getPercent());
+                    mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载进度：" + multiThreadDownload.getPercent());
                 }
 
                 @Override
                 public void onFailure(MultiThreadDownloadTask multiThreadDownload, String message) {
-                      mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载失败：" + message);
+                    mLogger.info("TaskId:" + multiThreadDownload.getTaskId() + " 下载失败：" + message);
                 }
             });
             multiThreadDownloadTask.startDownload();
