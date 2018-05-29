@@ -74,7 +74,6 @@ public class MultiThreadDownloadTask {
         this.allTask = Collections.synchronizedList(new ArrayList<>(threadCount));
         this.failedTasks = Collections.synchronizedList(new ArrayList<>());
         this.outListener = listener;
-        this.progressTimer = new Timer();
     }
 
     public void startDownload() {
@@ -90,7 +89,7 @@ public class MultiThreadDownloadTask {
             if (connection.getResponseCode() == 200) {
                 final int length = connection.getContentLength();
                 String supportRanges = connection.getHeaderField("Accept-Ranges");
-                mLogger.info("taskId：" + taskId + " supportRanges:" + supportRanges);
+//                mLogger.info("taskId：" + taskId + " supportRanges:" + supportRanges);
                 boolean enableRanges = false;
                 if (null != supportRanges && supportRanges.equals("bytes")) {
                     enableRanges = true;
@@ -102,7 +101,7 @@ public class MultiThreadDownloadTask {
                 }
                 connection.disconnect();
                 totalSize = length;
-                mLogger.info("taskId：" + taskId + " 文件总大小为：" + totalSize);
+//                mLogger.info("taskId：" + taskId + " 文件总大小为：" + totalSize);
                 File file = new File(fileSavePath, FileUtils.getFileName(this.url));
                 RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
                 accessFile.setLength(length);
@@ -118,7 +117,7 @@ public class MultiThreadDownloadTask {
                     if (i == threadCount - 1) {
                         endIndex = length;
                     }
-                    mLogger.info("线程：" + i + " startIndex:" + startIndex + "  endIndex:" + endIndex);
+//                    mLogger.info("线程：" + i + " startIndex:" + startIndex + "  endIndex:" + endIndex);
                     DownloadTask downloadTask = new DownloadTask(i, startIndex, endIndex, this.url, file, new DownloadListener.SimpleDownloadListener<DownloadTask>() {
                         @Override
                         public void onFailure(DownloadTask task, String message) {
@@ -136,17 +135,19 @@ public class MultiThreadDownloadTask {
                 scheduleProgressTask();
             } else {
                 printDownloadCostTime();
-                mLogger.info("下载 url:" + this.url + "\n未响应");
+//                mLogger.info("下载 url:" + this.url + "\n未响应");
                 if (null != outListener) outListener.onFailure(this, "未响应");
             }
         } catch (Exception e) {
             printDownloadCostTime();
-            mLogger.info("下载 url:" + this.url + "异常 \n错误信息：" + e.getMessage());
+//            mLogger.info("下载 url:" + this.url + "异常 \n错误信息：" + e.getMessage());
             if (null != outListener) outListener.onFailure(this, e.getMessage());
         }
     }
 
     private void scheduleProgressTask() {
+        //debug
+        progressTimer = new Timer();
         progressTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -168,6 +169,9 @@ public class MultiThreadDownloadTask {
                     outListener.onProgress(MultiThreadDownloadTask.this);
                 }
                 if (isAllFinished) {
+                    if (null != outListener) {
+                        outListener.onSuccess(MultiThreadDownloadTask.this);
+                    }
                     cancel();
                 }
             }
@@ -176,10 +180,11 @@ public class MultiThreadDownloadTask {
 
     private void printDownloadCostTime() {
         long duration = System.currentTimeMillis() - startDownLoadTime;
-        mLogger.info("taskId:" + taskId + " 下载耗时：" + duration / 1000 + "秒");
+//        mLogger.info("taskId:" + taskId + " 下载耗时：" + duration / 1000 + "秒");
     }
 
     public void clear() {
+        if (null != progressTimer) progressTimer.cancel();
         this.allTask.clear();
         this.failedTasks.clear();
     }

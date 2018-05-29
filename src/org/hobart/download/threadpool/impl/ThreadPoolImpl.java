@@ -37,16 +37,8 @@ public class ThreadPoolImpl implements ThreadPool {
 
     @Override
     public void execute(Runnable task) {
-        int t = totalWorkers.get();
-        if (t <= this.corePoolSize) {
-            if (!addWorker(task)) {
-                //
-                System.out.println("the workers is full ,so put the task to queue ");
-                addToQueue(task);
-            }
-        } else {
-            //添加到队列里面，等待workers 线程处理其他task完成之后，在处理这个task
-            System.out.println("task is added to queue,waiting workers thread have available thread to execute this task");
+        if (!addWorker(task)) {
+            System.out.println("the workers is full ,so put the task to queue ");
             addToQueue(task);
         }
     }
@@ -110,6 +102,7 @@ public class ThreadPoolImpl implements ThreadPool {
         private void runWorker(Worker w) {
             while (this.state != WorkerState.STOP && !t.isInterrupted()) {
                 try {
+                    System.out.println("runWorker thread name :" + this.t.getName());
                     Runnable firstTask = w.firstTask;
                     w.firstTask = null;
                     if (firstTask != null) {
@@ -117,12 +110,12 @@ public class ThreadPoolImpl implements ThreadPool {
                         firstTask.run();
                     }
                     setState(WorkerState.WAITING);
+                    //waiting until next task is not  null
                     Runnable next = getNextTask();
-                    if (null != next) {
-                        System.out.println("worker thread execute next thread.");
-                    }
+                    System.out.println("worker thread execute next thread.");
                     w.firstTask = next;
                 } catch (InterruptedException e) {
+                    System.out.println("worker thread is Interrupted and current  total workers : " + totalWorkers.get());
                     setState(WorkerState.DIRTY);
                     Thread.currentThread().interrupt();
                 }
